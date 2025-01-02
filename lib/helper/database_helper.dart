@@ -26,7 +26,7 @@ class Database_Helper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB,);
+    return await openDatabase(path, version: 2, onCreate: _createDB,);
   }
 
   // 테이블 생성
@@ -48,6 +48,15 @@ class Database_Helper {
     final db = await instance.database;
 
     return await db.insert('member', m.toMap());
+  }
+
+  // 모든 회원 조회
+  Future<List<Map<String, dynamic>>> getListUsers() async {
+    final db = await instance.database;
+    //final users = await db.query('member');
+    //return users.map((json) => Member.fromMap(json)).toList();
+
+    return await db.query('member');
   }
 
 }

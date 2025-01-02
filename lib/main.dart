@@ -127,9 +127,33 @@ class _MainActivityState extends State<MainActivity> {
 
   // 회원조회 처리
   Future<void> _listUsers() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('회원조회 기능 구현중...'))
-    );
+    List<Map<String, dynamic>> users = await _dbHelper.getListUsers();
+
+    // 조회결과를 대화상자에 리스트형태로 출력
+    // ListView: 플러터에서 목록을 표시할때 사용하는 위젯
+    // shrinkWrap : 내용에 맞게 ListView 크기 자동 조절
+    // itemCount : ListView에 나타낼 항목 수
+    // itemBuilder : ListView에 나타낼 각 항목을 어떻게 표시할지 정의
+    // ListTile : ListView에 나타낼 각 항목을 의미, 제목과 부제목으로 구성
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('회원 목록'),
+        content: Container(width: double.maxFinite,
+          child: ListView.builder(shrinkWrap: true, itemCount: users.length,
+              itemBuilder: (context, idx) {
+                final user = users[idx];
+                return ListTile(title: Text('${user['userid']}'),
+                  subtitle: Text('${user['email']} ${user['regdate']}'),);
+              }
+          )),
+        actions: [
+          // pop : 현재 화면에 나타난 위젯을 제거pop
+          TextButton(onPressed: () => Navigator.pop(context),
+            child: Text('닫기')),
+        ],
+      ) // AlertDialog
+    ); // showDialog
   } // listUsers
 
 } // _MainActivityState
