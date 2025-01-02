@@ -33,8 +33,8 @@ class Member {
     return Member(
         mno: map['mno'],
         userid: map['userid'],
-        passwd: map['passwd'],
-        email: map['email'],
+        passwd: map['passwd'] ?? '',
+        email: map['email'] ?? '',
         name: map['name'],
         regdate: map['regdate']
     );

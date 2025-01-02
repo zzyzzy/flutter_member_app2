@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html' as html;
+
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -13,6 +16,8 @@ void main() {
   // sqfliteFfiInit();
 
   // web 앱 실행시
+  // 웹에서는 SQLite가 네이티브하게 지원되지 않아 sqflite 패키지를 직접 사용할 수 없음
+  // 대신 sqflite_common_ffi나 다른 웹 호환 데이터베이스 솔루션을 사용해야 함!!
   // dart run sqflite_common_ffi_web:setup  (터미널)
   databaseFactory = databaseFactoryFfiWeb;
 
@@ -79,6 +84,9 @@ class _MainActivityState extends State<MainActivity> {
               SizedBox(height: 16,),
               ElevatedButton(onPressed: _listUsers, child: Container(
                 width: double.infinity, child: Text('회원 조회', textAlign: TextAlign.center,),)),
+              SizedBox(height: 16,),
+              ElevatedButton(onPressed: _exportData, child: Container(
+                width: double.infinity, child: Text('회원 내보내기', textAlign: TextAlign.center,),)),
             ],
           ),
         ),
@@ -127,7 +135,8 @@ class _MainActivityState extends State<MainActivity> {
 
   // 회원조회 처리
   Future<void> _listUsers() async {
-    List<Map<String, dynamic>> users = await _dbHelper.getListUsers();
+    //List<Map<String, dynamic>> users = await _dbHelper.getListUsers();
+    List<Member> users = await _dbHelper.getListUsers();
 
     // 조회결과를 대화상자에 리스트형태로 출력
     // ListView: 플러터에서 목록을 표시할때 사용하는 위젯
@@ -143,8 +152,8 @@ class _MainActivityState extends State<MainActivity> {
           child: ListView.builder(shrinkWrap: true, itemCount: users.length,
               itemBuilder: (context, idx) {
                 final user = users[idx];
-                return ListTile(title: Text('${user['userid']}'),
-                  subtitle: Text('${user['email']} ${user['regdate']}'),);
+                //return ListTile(title: Text('${user['userid']}'), subtitle: Text('${user['name']} ${user['regdate']}'),);
+                return ListTile(title: Text(user.userid), subtitle: Text('${user.name} ${user.regdate}'),);
               }
           )),
         actions: [
@@ -155,5 +164,21 @@ class _MainActivityState extends State<MainActivity> {
       ) // AlertDialog
     ); // showDialog
   } // listUsers
+
+  // 회원 데이터 내보내기
+  Future<void> _exportData() async {
+    final List<Map<String, dynamic>> data = await _dbHelper.exportUsersData();
+
+    // JSON 문자열로 변환
+    final jsonString = jsonEncode(data);
+
+    // 웹에서 다운로드 실행
+    final blob = html.Blob([jsonString], 'text/plain');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute('download', 'member_data.json')
+      ..click();
+    html.Url.revokeObjectUrl(url);
+  }
 
 } // _MainActivityState

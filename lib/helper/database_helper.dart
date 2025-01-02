@@ -16,6 +16,9 @@ class Database_Helper {
     if (_database != null) return _database!;
 
     // 데이터베이스 객체가 없다면 새로 생성
+    // Android: /data/data/[패키지명]/databases/member.db
+    // iOS의 경우: /var/mobile/Containers/Data/Application/[앱ID]/Documents/member.db
+    // Chrome의 경우 : 개발자 도구 → Application → Storage → IndexedDB
     _database = await _initDB('member.db');
 
     return _database!;
@@ -51,12 +54,19 @@ class Database_Helper {
   }
 
   // 모든 회원 조회
-  Future<List<Map<String, dynamic>>> getListUsers() async {
+  //Future<List<Map<String, dynamic>>> getListUsers() async {
+  Future<List<Member>> getListUsers() async {
     final db = await instance.database;
-    //final users = await db.query('member');
-    //return users.map((json) => Member.fromMap(json)).toList();
-
-    return await db.query('member');
+    //return await db.query('member',
+    //      columns: ['mno', 'userid', 'name', 'regdate']);
+    // final users = await db.query('member', columns: ['mno', 'userid', 'name', 'regdate']);
+    final users = await db.query('member', columns: ['mno', 'userid', 'name', 'regdate']);
+    return users.map((json) => Member.fromMap(json)).toList();
   }
 
+  //
+  Future<List<Map<String, dynamic>>> exportUsersData() async {
+    final db = await instance.database;
+    return await db.query('member');
+  }
 }
