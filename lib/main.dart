@@ -118,14 +118,18 @@ class _MainActivityState extends State<MainActivity> {
       );
     }
 
-
-  }
+    // 입력필드 초기화
+    _useridController.clear();
+    _passwdController.clear();
+    _emailController.clear();
+    _nameController.clear();
+  } // insertMember
 
   // 회원조회 처리
   Future<void> _listUsers() async {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('회원조회 기능 구현중...'))
     );
-  }
+  } // listUsers
 
 } // _MainActivityState
